@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    {
+      "type": "process",
+      "label": "Build",
+      "command": "make",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "type": "shell",
+      "label": "Build and Flash",
+      "command": "make install",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+    },
+  ],
+  "version": "2.0.0"
+}

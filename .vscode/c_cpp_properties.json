@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "STM32",
+            "includePath": [
+                "Drivers",
+                "Drivers/CMSIS/Device/ST/STM32L1xx/Include",
+                "Drivers/CMSIS/Include",
+                "Drivers/STM32L1xx_HAL_Driver/Inc",
+                "Inc",
+                "Src"
+            ],
+            "defines": [
+                "STM32L151xB",
+                "USE_HAL_DRIVER"
+            ],
+            "compilerPath": "/usr/local/gcc-arm-none-eabi/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "configurationProvider": "go2sh.cmake-integration"
+        }
+    ],
+    "version": 4
+}
