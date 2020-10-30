@@ -23,6 +23,23 @@
 #define BATTERY_FIVE_PERCENTS         (BATTERY_ONE_PERCENT * 5 + BATTERY_MIN)
 #define BATTERY_TEN_PERCENTS          (BATTERY_ONE_PERCENT * 10 + BATTERY_MIN)
 
+// Some RGB leds has a bit reversed pins
+#ifdef GRB
+#define GREEN_TIM   htim3
+#define GREEN_CH    TIM_CHANNEL_1
+#define RED_TIM     htim2
+#define RED_CH      TIM_CHANNEL_2
+#define BLUE_TIM    htim2
+#define BLUE_CH     TIM_CHANNEL_1
+#else
+#define RED_TIM     htim3
+#define RED_CH      TIM_CHANNEL_1
+#define GREEN_TIM   htim2
+#define GREEN_CH    TIM_CHANNEL_2
+#define BLUE_TIM    htim2
+#define BLUE_CH     TIM_CHANNEL_1
+#endif
+
 
 // Radar based motion detection state machine
 #define MOTION_STATES(s)  \
@@ -370,19 +387,19 @@ static void read_switch_settings(uint32_t *radar, uint32_t *light)
 
 static void play_low_battery_animation()
 {
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&RED_TIM, RED_CH);
   // Play it 3 times
   for (int i = 0; i < 3; i++) {
     for (int i = 50; i < 255; i++) {
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, i);
+      __HAL_TIM_SET_COMPARE(&RED_TIM, RED_CH, i);
       HAL_Delay(5);
     }
     for (int i = 255; i >= 0; i--) {
-      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, i);
+      __HAL_TIM_SET_COMPARE(&RED_TIM, RED_CH, i);
       HAL_Delay(2);
     }
   }
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Stop(&RED_TIM, RED_CH);
 }
 
 static void turn_rgb_on_by_percent(int p)
@@ -400,17 +417,17 @@ static void turn_rgb_on_by_percent(int p)
     g = 150;
   }
 
-  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, r);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, g);
+  __HAL_TIM_SET_COMPARE(&RED_TIM, RED_CH, r);
+  __HAL_TIM_SET_COMPARE(&GREEN_TIM, GREEN_CH, g);
 }
 
 static void play_charging_animation()
 {
   uint32_t last_percent = 0;
 
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&RED_TIM, RED_CH);
+  HAL_TIM_PWM_Start(&GREEN_TIM, GREEN_CH);
+  HAL_TIM_PWM_Start(&BLUE_TIM, BLUE_CH);
 
   while (charger_connected || charging_completed) {
     uint32_t mvolts;
@@ -426,9 +443,9 @@ static void play_charging_animation()
     HAL_Delay(1000);
   }
 
-  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Stop(&RED_TIM, RED_CH);
+  HAL_TIM_PWM_Stop(&GREEN_TIM, GREEN_CH);
+  HAL_TIM_PWM_Stop(&BLUE_TIM, BLUE_CH);
 }
 
 static uint32_t battery_voltage_to_percent(uint32_t mvolts)
