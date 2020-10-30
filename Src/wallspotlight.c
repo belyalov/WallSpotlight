@@ -24,6 +24,7 @@
 #define BATTERY_TEN_PERCENTS          (BATTERY_ONE_PERCENT * 10 + BATTERY_MIN)
 
 // Some RGB leds has a bit reversed pins
+#define GRB
 #ifdef GRB
 #define GREEN_TIM   htim3
 #define GREEN_CH    TIM_CHANNEL_1
@@ -86,9 +87,6 @@ extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern void SystemClock_Config(void);
-
-// static void play_charging_animation(struct open_iot* iot);
-// static void play_low_battery_animation();
 
 
 void wallspotlight_app()
