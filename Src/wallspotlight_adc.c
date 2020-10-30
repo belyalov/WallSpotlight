@@ -89,7 +89,7 @@ void read_light_and_battery_voltage(uint32_t* mvolts, uint32_t* light)
   int32_t adc_vref = get_avg_p80(&adc_values[2], adc_values_end, 3);
 
   int32_t vref = (VREFINT_CAL_VREF * (*VREFINT_CAL_ADDR) / adc_vref);
-  // DEBUG_UINT_LN("vref ", vref);
+  // printf("vref %d\r\n", vref);
   vcc = (float)vref / 4096.0 * (float)adc_batt * 2.0;
   if (mvolts) {
     *mvolts = vcc;

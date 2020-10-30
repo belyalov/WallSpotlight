@@ -311,14 +311,14 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 static void turn_radar_on()
 {
-  // DEBUGLN("radar on");
+  // printf("radar on\r\n");
   HAL_GPIO_WritePin(PWR_RADAR_GPIO_Port, PWR_RADAR_Pin, GPIO_PIN_RESET);
   skip_first_motion_isr = 1;
 }
 
 static void turn_radar_off()
 {
-  // DEBUGLN("radar off");
+  // printf("radar off\r\n");
   HAL_GPIO_WritePin(PWR_RADAR_GPIO_Port, PWR_RADAR_Pin, GPIO_PIN_SET);
 }
 
