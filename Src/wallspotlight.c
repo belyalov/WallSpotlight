@@ -106,12 +106,14 @@ void wallspotlight_app()
   // Once motion detected turn off radar and wait N seconds
   // After 300 secs consider motion as cleared.
   uint32_t motion_state = MOTION_OFF;
+  uint32_t sw_radar_on;
+  uint32_t sw_light_on;
+  read_switch_settings(&sw_radar_on, &sw_light_on);
+  printf("Switches state: light %ld, radar %ld\r\n", sw_light_on, sw_radar_on);
 
   // charger_connected = 1;
   while(1) {
     // Read on board mini switch settings
-    uint32_t sw_radar_on;
-    uint32_t sw_light_on;
     read_switch_settings(&sw_radar_on, &sw_light_on);
     // Read battery voltage / light sensor value
     // (they both utilizing ADC so do it alltogether)
@@ -326,19 +328,20 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 static void turn_radar_on()
 {
-  // printf("radar on\r\n");
+  printf("radar on\r\n");
   HAL_GPIO_WritePin(PWR_RADAR_GPIO_Port, PWR_RADAR_Pin, GPIO_PIN_RESET);
   skip_first_motion_isr = 1;
 }
 
 static void turn_radar_off()
 {
-  // printf("radar off\r\n");
+  printf("radar off\r\n");
   HAL_GPIO_WritePin(PWR_RADAR_GPIO_Port, PWR_RADAR_Pin, GPIO_PIN_SET);
 }
 
 static void turn_spotlight_on(uint32_t light)
 {
+  printf("turn spotlight on, light %ld\r\n", light);
   if (light < LIGHT_THRESHOLD_4LED_ON) {
     // night mode: 4 LEDs
     HAL_GPIO_WritePin(LED_W1_GPIO_Port, LED_W1_Pin, GPIO_PIN_RESET);
@@ -352,6 +355,7 @@ static void turn_spotlight_on(uint32_t light)
 
 static void turn_spotlight_off()
 {
+  printf("turn spotlight off\r\n");
   HAL_GPIO_WritePin(LED_W1_GPIO_Port, LED_W1_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LED_W2_GPIO_Port, LED_W2_Pin, GPIO_PIN_RESET);
 }
