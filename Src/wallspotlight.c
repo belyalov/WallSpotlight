@@ -71,7 +71,7 @@ static void     play_charging_animation();
 static void     play_low_battery_animation();
 static void     turn_radar_on();
 static void     turn_radar_off();
-static void     turn_spotlight_on(uint32_t leds);
+static void     turn_spotlight_on(uint32_t light, uint32_t battery);
 static void     turn_spotlight_off();
 
 // ISR variables
@@ -111,7 +111,6 @@ void wallspotlight_app()
   read_switch_settings(&sw_radar_on, &sw_light_on);
   printf("Switches state: light %ld, radar %ld\r\n", sw_light_on, sw_radar_on);
 
-  // charger_connected = 1;
   while(1) {
     // Read on board mini switch settings
     read_switch_settings(&sw_radar_on, &sw_light_on);
@@ -189,15 +188,13 @@ void wallspotlight_app()
       if (light >= LIGHT_THRESHOLD_OFF) {
         // Turn off spotlight if it is too bright
         turn_spotlight_off();
-      } else if (light < LIGHT_THRESHOLD_4LED_ON) {
+      } else if (light < LIGHT_THRESHOLD_6LED_ON) {
         // Otherwise turn it on by light level (2 or 4 LEDs)
-        if (battery_low) {
-          play_low_battery_animation();
-        }
-        turn_spotlight_on(light);
+        turn_spotlight_on(light, battery_low);
       }
       // Re-read light sensor 10 seconds, turn on spotlight when treshold reached
       HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, 10, RTC_WAKEUPCLOCK_CK_SPRE_16BITS);
+      goto sleep;
     }
 
     // - Radar with / without light sensor
@@ -271,10 +268,7 @@ void wallspotlight_app()
       }  // of switch()
 
       if (MOTION_PRESENT(motion_state)) {
-        if (battery_low) {
-          play_low_battery_animation();
-        }
-        turn_spotlight_on(light);
+        turn_spotlight_on(light, battery_low);
       } else {
         turn_spotlight_off();
       }
@@ -339,8 +333,11 @@ static void turn_radar_off()
   HAL_GPIO_WritePin(PWR_RADAR_GPIO_Port, PWR_RADAR_Pin, GPIO_PIN_SET);
 }
 
-static void turn_spotlight_on(uint32_t light)
+static void turn_spotlight_on(uint32_t light, uint32_t battery_low)
 {
+  if (battery_low) {
+    play_low_battery_animation();
+  }
   printf("turn spotlight on, light %ld\r\n", light);
   if (light < LIGHT_THRESHOLD_4LED_ON) {
     // night mode: 4 LEDs
@@ -389,6 +386,8 @@ static void read_switch_settings(uint32_t *radar, uint32_t *light)
 
 static void play_low_battery_animation()
 {
+  turn_spotlight_off();
+
   HAL_TIM_PWM_Start(&RED_TIM, RED_CH);
   // Play it 3 times
   for (int i = 0; i < 3; i++) {
@@ -427,9 +426,10 @@ static void play_charging_animation()
 {
   uint32_t last_percent = 0;
 
+  turn_spotlight_off();
+
   HAL_TIM_PWM_Start(&RED_TIM, RED_CH);
   HAL_TIM_PWM_Start(&GREEN_TIM, GREEN_CH);
-  HAL_TIM_PWM_Start(&BLUE_TIM, BLUE_CH);
 
   while (charger_connected || charging_completed) {
     uint32_t mvolts;
@@ -447,7 +447,6 @@ static void play_charging_animation()
 
   HAL_TIM_PWM_Stop(&RED_TIM, RED_CH);
   HAL_TIM_PWM_Stop(&GREEN_TIM, GREEN_CH);
-  HAL_TIM_PWM_Stop(&BLUE_TIM, BLUE_CH);
 }
 
 static uint32_t battery_voltage_to_percent(uint32_t mvolts)
