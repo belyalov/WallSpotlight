@@ -65,7 +65,7 @@ static void MX_RTC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-extern wallspotlight_app();
+extern void wallspotlight_app();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
